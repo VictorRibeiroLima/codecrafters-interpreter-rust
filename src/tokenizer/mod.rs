@@ -21,6 +21,7 @@ pub enum Token {
     Var,
     Identifier(String),
     Equal,
+    EqualEqual,
     String(String),
     Number(String),
     Semicolon,
@@ -44,6 +45,7 @@ impl Display for Token {
             Token::Var => write!(f, "VAR var null"),
             Token::Identifier(s) => write!(f, "IDENTIFIER {} null", s),
             Token::Equal => write!(f, "EQUAL = null"),
+            Token::EqualEqual => write!(f, "EQUAL_EQUAL == null"),
             Token::String(s) => write!(f, "STRING {} \"{}\"", s, s),
             Token::Number(s) => write!(f, "NUMBER {} {}", s, s),
             Token::Semicolon => write!(f, "SEMICOLON ; null"),
@@ -71,7 +73,18 @@ pub fn tokenize(input: &str) -> Vec<Token> {
     while let Some(c) = chars.next() {
         match c {
             ' ' => continue,
-            '=' => tokens.push(Token::Equal),
+            '=' => {
+                if let Some(&next_char) = chars.peek() {
+                    if next_char == '=' {
+                        chars.next();
+                        tokens.push(Token::EqualEqual);
+                    } else {
+                        tokens.push(Token::Equal);
+                    }
+                } else {
+                    tokens.push(Token::Equal);
+                }
+            }
             ';' => tokens.push(Token::Semicolon),
             '(' => tokens.push(Token::LeftParen),
             ')' => tokens.push(Token::RightParen),
