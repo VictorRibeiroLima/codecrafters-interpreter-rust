@@ -225,7 +225,7 @@ fn tokenize_string(chars: &mut Peekable<Chars>) -> Token {
     if last_char != '"' {
         return Token::Invalid(TokenizerError {
             line: 1,
-            message: "Unterminated string".to_string(),
+            message: "Unterminated string.".to_string(),
         });
     }
     Token::String(string)
