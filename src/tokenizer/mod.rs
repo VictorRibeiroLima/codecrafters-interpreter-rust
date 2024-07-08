@@ -72,7 +72,7 @@ impl Display for Token {
             Token::Greater => write!(f, "GREATER > null"),
             Token::GreaterEqual => write!(f, "GREATER_EQUAL >= null"),
             Token::Identifier(s) => write!(f, "IDENTIFIER {} null", s),
-            Token::String(s) => write!(f, "STRING {} \"{}\"", s, s),
+            Token::String(s) => write!(f, "STRING \"{}\" {}", s, s),
             Token::Number(s) => write!(f, "NUMBER {} {}", s, s),
             Token::Invalid(s) => write!(f, "[line {}] Error: {}", s.line, s.message),
         }

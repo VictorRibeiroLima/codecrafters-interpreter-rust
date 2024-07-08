@@ -1,7 +1,3 @@
-()    {}
-@
- $
- +++
- // Let's Go!
- +++
- #c
+"foo baz"
+"some"
+var lala = "string"
