@@ -80,7 +80,6 @@ impl Display for Token {
 }
 
 pub fn tokenize(input: &str) -> Vec<Token> {
-    let mut pushing = true;
     let mut tokens = Vec::new();
     let mut chars = input.chars().peekable();
     let mut line = 1;
@@ -113,10 +112,9 @@ pub fn tokenize(input: &str) -> Vec<Token> {
             '/' => {
                 if let Some(&next_char) = chars.peek() {
                     if next_char == '/' {
-                        pushing = false;
                         while let Some(c) = chars.next() {
                             if c == '\n' {
-                                pushing = true;
+                                line += 1;
                                 break;
                             }
                         }
@@ -178,7 +176,6 @@ pub fn tokenize(input: &str) -> Vec<Token> {
             }
             '\n' => {
                 line += 1;
-                pushing = true;
                 Token::WhiteSpace
             }
             _ => Token::Invalid(TokenizerError {
@@ -187,9 +184,7 @@ pub fn tokenize(input: &str) -> Vec<Token> {
             }),
         };
 
-        if pushing {
-            tokens.push(token);
-        }
+        tokens.push(token);
     }
 
     tokens.push(Token::EOF);
