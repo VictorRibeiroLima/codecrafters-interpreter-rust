@@ -209,6 +209,9 @@ fn tokenize_number(first_char: char, chars: &mut Peekable<Chars>) -> Token {
             });
         }
     }
+    if &number[number.len() - 1..] == "." {
+        number.pop();
+    }
     Token::Number(number)
 }
 
