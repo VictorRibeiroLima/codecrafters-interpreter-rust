@@ -1,14 +1,15 @@
 use std::env;
 use std::fs;
 use std::io::{self, Write};
+use std::process::ExitCode;
 
 mod tokenizer;
 
-fn main() -> Result<(), i32> {
+fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
         writeln!(io::stderr(), "Usage: {} tokenize <filename>", args[0]).unwrap();
-        return Err(1); // TODO:See lox error codes
+        return ExitCode::from(1); // TODO:See lox error codes
     }
 
     let command = &args[1];
@@ -32,11 +33,11 @@ fn main() -> Result<(), i32> {
                     _ => println!("{}", token),
                 }
             }
-            return Err(return_code);
+            return ExitCode::from(return_code);
         }
         _ => {
             writeln!(io::stderr(), "Unknown command: {}", command).unwrap();
-            return Err(1); //TODO: See lox error codes
+            return ExitCode::from(1); //TODO: See lox error codes
         }
     }
 }
