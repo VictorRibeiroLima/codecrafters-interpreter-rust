@@ -73,7 +73,7 @@ impl Display for Token {
             Token::GreaterEqual => write!(f, "GREATER_EQUAL >= null"),
             Token::Identifier(s) => write!(f, "IDENTIFIER {} null", s),
             Token::String(s) => write!(f, "STRING \"{}\" {}", s, s),
-            Token::Number(s) => write!(f, "NUMBER {} {}", s, s),
+            Token::Number(s) => write!(f, "NUMBER {} {:?}", s, s.parse::<f64>().unwrap()),
             Token::Invalid(s) => write!(f, "[line {}] Error: {}", s.line, s.message),
         }
     }
@@ -206,16 +206,12 @@ fn tokenize_number(first_char: char, chars: &mut Peekable<Chars>) -> Token {
             decimal = true;
             number.push(c);
             chars.next();
-        } else if c == ' ' || c == ';' {
-            break;
         } else {
-            number.push(c);
-            chars.next();
-            return Token::Invalid(TokenizerError {
-                line: 1,
-                message: format!("Unexpected character: {}", c),
-            });
+            break;
         }
+    }
+    if &number[number.len() - 1..] == "." {
+        number.pop();
     }
     Token::Number(number)
 }
