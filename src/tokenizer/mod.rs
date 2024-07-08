@@ -193,9 +193,17 @@ pub fn tokenize(input: &str) -> Vec<Token> {
 
 fn tokenize_number(first_char: char, chars: &mut Peekable<Chars>) -> Token {
     let mut number = String::new();
+    let mut decimal = false;
     number.push(first_char);
     while let Some(&c) = chars.peek() {
-        if c.is_digit(10) || c == '.' {
+        if c.is_digit(10) {
+            number.push(c);
+            chars.next();
+        } else if c == '.' {
+            if decimal {
+                break;
+            }
+            decimal = true;
             number.push(c);
             chars.next();
         } else if c == ' ' || c == ';' {
@@ -208,9 +216,6 @@ fn tokenize_number(first_char: char, chars: &mut Peekable<Chars>) -> Token {
                 message: format!("Unexpected character: {}", c),
             });
         }
-    }
-    if &number[number.len() - 1..] == "." {
-        number.pop();
     }
     Token::Number(number)
 }
