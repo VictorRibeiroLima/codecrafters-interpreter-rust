@@ -195,7 +195,7 @@ fn tokenize_number(first_char: char, chars: &mut Peekable<Chars>) -> Token {
     let mut number = String::new();
     number.push(first_char);
     while let Some(&c) = chars.peek() {
-        if c.is_digit(10) {
+        if c.is_digit(10) || c == '.' {
             number.push(c);
             chars.next();
         } else if c == ' ' || c == ';' {
