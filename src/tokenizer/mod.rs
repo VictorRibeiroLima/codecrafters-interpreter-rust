@@ -1,15 +1,77 @@
 use peekmore::{PeekMore, PeekMoreIterator};
 use std::{fmt::Display, str::Chars};
 
-struct Keyword_ {
+struct Keyword {
     name: &'static str,
     token: Token,
 }
 
-const RESERVED_KEYWORDS: [Keyword_; 1] = [Keyword_ {
-    name: "var",
-    token: Token::Var,
-}];
+const RESERVED_KEYWORDS: [Keyword; 16] = [
+    Keyword {
+        name: "var",
+        token: Token::Var,
+    },
+    Keyword {
+        name: "and",
+        token: Token::And,
+    },
+    Keyword {
+        name: "class",
+        token: Token::Class,
+    },
+    Keyword {
+        name: "else",
+        token: Token::Else,
+    },
+    Keyword {
+        name: "false",
+        token: Token::False,
+    },
+    Keyword {
+        name: "for",
+        token: Token::For,
+    },
+    Keyword {
+        name: "fun",
+        token: Token::Fun,
+    },
+    Keyword {
+        name: "if",
+        token: Token::If,
+    },
+    Keyword {
+        name: "nil",
+        token: Token::Nil,
+    },
+    Keyword {
+        name: "or",
+        token: Token::Or,
+    },
+    Keyword {
+        name: "print",
+        token: Token::Print,
+    },
+    Keyword {
+        name: "return",
+        token: Token::Return,
+    },
+    Keyword {
+        name: "super",
+        token: Token::Super,
+    },
+    Keyword {
+        name: "this",
+        token: Token::This,
+    },
+    Keyword {
+        name: "true",
+        token: Token::True,
+    },
+    Keyword {
+        name: "while",
+        token: Token::While,
+    },
+];
 
 #[derive(Clone)]
 pub struct TokenizerError {
@@ -19,7 +81,25 @@ pub struct TokenizerError {
 
 #[derive(Clone)]
 pub enum Token {
+    // Keywords
+    And,
+    Class,
+    Else,
+    False,
+    For,
+    Fun,
+    If,
+    Nil,
+    Or,
+    Print,
+    Return,
+    Super,
+    This,
+    True,
     Var,
+    While,
+
+    // Single-character tokens
     Equal,
     EqualEqual,
     Semicolon,
@@ -36,14 +116,20 @@ pub enum Token {
     Bang,
     BangEqual,
     Less,
-    WhiteSpace,
     LessEqual,
     Greater,
     GreaterEqual,
+
+    // Literals
     Identifier(String),
     String(String),
     Number(String),
     Invalid(TokenizerError),
+
+    // Whitespace
+    WhiteSpace,
+
+    // End of file
     EOF,
 }
 
@@ -51,6 +137,21 @@ impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Token::WhiteSpace => write!(f, ""),
+            Token::And => write!(f, "AND and null"),
+            Token::Class => write!(f, "CLASS class null"),
+            Token::Else => write!(f, "ELSE else null"),
+            Token::False => write!(f, "FALSE false null"),
+            Token::For => write!(f, "FOR for null"),
+            Token::Fun => write!(f, "FUN fun null"),
+            Token::If => write!(f, "IF if null"),
+            Token::Nil => write!(f, "NIL nil null"),
+            Token::Or => write!(f, "OR or null"),
+            Token::Print => write!(f, "PRINT print null"),
+            Token::Return => write!(f, "RETURN return null"),
+            Token::Super => write!(f, "SUPER super null"),
+            Token::This => write!(f, "THIS this null"),
+            Token::True => write!(f, "TRUE true null"),
+            Token::While => write!(f, "WHILE while null"),
             Token::Var => write!(f, "VAR var null"),
             Token::Equal => write!(f, "EQUAL = null"),
             Token::EqualEqual => write!(f, "EQUAL_EQUAL == null"),
