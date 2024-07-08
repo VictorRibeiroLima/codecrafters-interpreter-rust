@@ -20,6 +20,8 @@ pub enum Token {
     Semicolon,
     LeftParen,
     RightParen,
+    LeftBrace,
+    RightBrace,
     Invalid(String),
     EOF,
 }
@@ -35,6 +37,8 @@ impl Display for Token {
             Token::Semicolon => write!(f, "SEMICOLON ; null"),
             Token::LeftParen => write!(f, "LEFT_PAREN ( null"),
             Token::RightParen => write!(f, "RIGHT_PAREN ) null"),
+            Token::LeftBrace => write!(f, "LEFT_BRACE {{ null"),
+            Token::RightBrace => write!(f, "RIGHT_BRACE }} null"),
             Token::EOF => write!(f, "EOF  null"),
             Token::Invalid(s) => write!(f, "INVALID {} null", s),
         }
@@ -52,6 +56,8 @@ pub fn tokenize(input: &str) -> Vec<Token> {
             ';' => tokens.push(Token::Semicolon),
             '(' => tokens.push(Token::LeftParen),
             ')' => tokens.push(Token::RightParen),
+            '{' => tokens.push(Token::LeftBrace),
+            '}' => tokens.push(Token::RightBrace),
             '0'..='9' => {
                 let number = tokenize_number(c, &mut chars);
                 tokens.push(number);
