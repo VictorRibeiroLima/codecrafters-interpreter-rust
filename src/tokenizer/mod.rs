@@ -19,11 +19,8 @@ pub struct TokenizerError {
 #[derive(Clone)]
 pub enum Token {
     Var,
-    Identifier(String),
     Equal,
     EqualEqual,
-    String(String),
-    Number(String),
     Semicolon,
     LeftParen,
     RightParen,
@@ -35,6 +32,11 @@ pub enum Token {
     Plus,
     Minus,
     Slash,
+    Bang,
+    BangEqual,
+    Identifier(String),
+    String(String),
+    Number(String),
     Invalid(TokenizerError),
     EOF,
 }
@@ -43,11 +45,8 @@ impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Token::Var => write!(f, "VAR var null"),
-            Token::Identifier(s) => write!(f, "IDENTIFIER {} null", s),
             Token::Equal => write!(f, "EQUAL = null"),
             Token::EqualEqual => write!(f, "EQUAL_EQUAL == null"),
-            Token::String(s) => write!(f, "STRING {} \"{}\"", s, s),
-            Token::Number(s) => write!(f, "NUMBER {} {}", s, s),
             Token::Semicolon => write!(f, "SEMICOLON ; null"),
             Token::LeftParen => write!(f, "LEFT_PAREN ( null"),
             Token::RightParen => write!(f, "RIGHT_PAREN ) null"),
@@ -60,6 +59,11 @@ impl Display for Token {
             Token::Minus => write!(f, "MINUS - null"),
             Token::Slash => write!(f, "SLASH / null"),
             Token::EOF => write!(f, "EOF  null"),
+            Token::Bang => write!(f, "BANG ! null"),
+            Token::BangEqual => write!(f, "BANG_EQUAL != null"),
+            Token::Identifier(s) => write!(f, "IDENTIFIER {} null", s),
+            Token::String(s) => write!(f, "STRING {} \"{}\"", s, s),
+            Token::Number(s) => write!(f, "NUMBER {} {}", s, s),
             Token::Invalid(s) => write!(f, "[line {}] Error: {}", s.line, s.message),
         }
     }
@@ -96,6 +100,18 @@ pub fn tokenize(input: &str) -> Vec<Token> {
             '+' => tokens.push(Token::Plus),
             '-' => tokens.push(Token::Minus),
             '/' => tokens.push(Token::Slash),
+            '!' => {
+                if let Some(&next_char) = chars.peek() {
+                    if next_char == '=' {
+                        chars.next();
+                        tokens.push(Token::BangEqual);
+                    } else {
+                        tokens.push(Token::Bang);
+                    }
+                } else {
+                    tokens.push(Token::Bang);
+                }
+            }
             '0'..='9' => {
                 let number = tokenize_number(c, &mut chars);
                 tokens.push(number);
