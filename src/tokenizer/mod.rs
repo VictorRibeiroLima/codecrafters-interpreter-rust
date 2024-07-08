@@ -34,6 +34,10 @@ pub enum Token {
     Slash,
     Bang,
     BangEqual,
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
     Identifier(String),
     String(String),
     Number(String),
@@ -61,6 +65,10 @@ impl Display for Token {
             Token::EOF => write!(f, "EOF  null"),
             Token::Bang => write!(f, "BANG ! null"),
             Token::BangEqual => write!(f, "BANG_EQUAL != null"),
+            Token::Less => write!(f, "LESS < null"),
+            Token::LessEqual => write!(f, "LESS_EQUAL <= null"),
+            Token::Greater => write!(f, "GREATER > null"),
+            Token::GreaterEqual => write!(f, "GREATER_EQUAL >= null"),
             Token::Identifier(s) => write!(f, "IDENTIFIER {} null", s),
             Token::String(s) => write!(f, "STRING {} \"{}\"", s, s),
             Token::Number(s) => write!(f, "NUMBER {} {}", s, s),
@@ -110,6 +118,30 @@ pub fn tokenize(input: &str) -> Vec<Token> {
                     }
                 } else {
                     tokens.push(Token::Bang);
+                }
+            }
+            '<' => {
+                if let Some(&next_char) = chars.peek() {
+                    if next_char == '=' {
+                        chars.next();
+                        tokens.push(Token::LessEqual);
+                    } else {
+                        tokens.push(Token::Less);
+                    }
+                } else {
+                    tokens.push(Token::Less);
+                }
+            }
+            '>' => {
+                if let Some(&next_char) = chars.peek() {
+                    if next_char == '=' {
+                        chars.next();
+                        tokens.push(Token::GreaterEqual);
+                    } else {
+                        tokens.push(Token::Greater);
+                    }
+                } else {
+                    tokens.push(Token::Greater);
                 }
             }
             '0'..='9' => {
