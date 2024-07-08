@@ -87,7 +87,7 @@ pub fn tokenize(input: &str) -> Vec<Token> {
 
     while let Some(c) = chars.next() {
         let token = match c {
-            ' ' => Token::WhiteSpace,
+            ' ' | '\t' => Token::WhiteSpace,
             '=' => {
                 if let Some(&next_char) = chars.peek() {
                     if next_char == '=' {
