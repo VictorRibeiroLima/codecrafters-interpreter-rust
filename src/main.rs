@@ -23,7 +23,12 @@ fn main() {
 
             let tokens = tokenizer::tokenize(&file_contents);
             for token in tokens {
-                println!("{}", token);
+                match token {
+                    tokenizer::Token::Invalid(e) => {
+                        writeln!(io::stderr(), "[line {}] Error: {}", e.line, e.message).unwrap();
+                    }
+                    _ => println!("{}", token),
+                }
             }
         }
         _ => {

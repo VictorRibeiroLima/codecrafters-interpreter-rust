@@ -11,6 +11,12 @@ const RESERVED_KEYWORDS: [Keyword_; 1] = [Keyword_ {
 }];
 
 #[derive(Clone)]
+pub struct TokenizerError {
+    pub line: usize,
+    pub message: String,
+}
+
+#[derive(Clone)]
 pub enum Token {
     Var,
     Identifier(String),
@@ -28,7 +34,7 @@ pub enum Token {
     Plus,
     Minus,
     Slash,
-    Invalid(String),
+    Invalid(TokenizerError),
     EOF,
 }
 
@@ -52,7 +58,7 @@ impl Display for Token {
             Token::Minus => write!(f, "MINUS - null"),
             Token::Slash => write!(f, "SLASH / null"),
             Token::EOF => write!(f, "EOF  null"),
-            Token::Invalid(s) => write!(f, "INVALID {} null", s),
+            Token::Invalid(s) => write!(f, "[line {}] Error: {}", s.line, s.message),
         }
     }
 }
@@ -60,6 +66,7 @@ impl Display for Token {
 pub fn tokenize(input: &str) -> Vec<Token> {
     let mut tokens = Vec::new();
     let mut chars = input.chars().peekable();
+    let mut line = 1;
 
     while let Some(c) = chars.next() {
         match c {
@@ -88,7 +95,13 @@ pub fn tokenize(input: &str) -> Vec<Token> {
                 let identifier = tokenize_identifier(c, &mut chars);
                 tokens.push(identifier);
             }
-            _ => panic!("Unexpected character: {}", c),
+            '\n' => line += 1,
+            _ => {
+                tokens.push(Token::Invalid(TokenizerError {
+                    line,
+                    message: format!("Unexpected character: {}", c),
+                }));
+            }
         }
     }
 
@@ -108,7 +121,10 @@ fn tokenize_number(first_char: char, chars: &mut Peekable<Chars>) -> Token {
         } else {
             number.push(c);
             chars.next();
-            return Token::Invalid(number);
+            return Token::Invalid(TokenizerError {
+                line: 1,
+                message: format!("Unexpected character: {}", c),
+            });
         }
     }
     Token::Number(number)
@@ -125,7 +141,10 @@ fn tokenize_string(chars: &mut Peekable<Chars>) -> Token {
         string.push(c);
     }
     if last_char != '"' {
-        return Token::Invalid(string);
+        return Token::Invalid(TokenizerError {
+            line: 1,
+            message: "Unterminated string".to_string(),
+        });
     }
     Token::String(string)
 }
