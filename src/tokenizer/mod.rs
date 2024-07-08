@@ -35,6 +35,7 @@ pub enum Token {
     Bang,
     BangEqual,
     Less,
+    WhiteSpace,
     LessEqual,
     Greater,
     GreaterEqual,
@@ -48,6 +49,7 @@ pub enum Token {
 impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Token::WhiteSpace => write!(f, ""),
             Token::Var => write!(f, "VAR var null"),
             Token::Equal => write!(f, "EQUAL = null"),
             Token::EqualEqual => write!(f, "EQUAL_EQUAL == null"),
@@ -78,91 +80,115 @@ impl Display for Token {
 }
 
 pub fn tokenize(input: &str) -> Vec<Token> {
+    let mut pushing = true;
     let mut tokens = Vec::new();
     let mut chars = input.chars().peekable();
     let mut line = 1;
 
     while let Some(c) = chars.next() {
-        match c {
-            ' ' => continue,
+        let token = match c {
+            ' ' => Token::WhiteSpace,
             '=' => {
                 if let Some(&next_char) = chars.peek() {
                     if next_char == '=' {
                         chars.next();
-                        tokens.push(Token::EqualEqual);
+                        Token::EqualEqual
                     } else {
-                        tokens.push(Token::Equal);
+                        Token::Equal
                     }
                 } else {
-                    tokens.push(Token::Equal);
+                    Token::Equal
                 }
             }
-            ';' => tokens.push(Token::Semicolon),
-            '(' => tokens.push(Token::LeftParen),
-            ')' => tokens.push(Token::RightParen),
-            '{' => tokens.push(Token::LeftBrace),
-            '}' => tokens.push(Token::RightBrace),
-            '*' => tokens.push(Token::Star),
-            '.' => tokens.push(Token::Dot),
-            ',' => tokens.push(Token::Comma),
-            '+' => tokens.push(Token::Plus),
-            '-' => tokens.push(Token::Minus),
-            '/' => tokens.push(Token::Slash),
+            ';' => Token::Semicolon,
+            '(' => Token::LeftParen,
+            ')' => Token::RightParen,
+            '{' => Token::LeftBrace,
+            '}' => Token::RightBrace,
+            '*' => Token::Star,
+            '.' => Token::Dot,
+            ',' => Token::Comma,
+            '+' => Token::Plus,
+            '-' => Token::Minus,
+            '/' => {
+                if let Some(&next_char) = chars.peek() {
+                    if next_char == '/' {
+                        pushing = false;
+                        while let Some(c) = chars.next() {
+                            if c == '\n' {
+                                pushing = true;
+                                break;
+                            }
+                        }
+                        Token::WhiteSpace
+                    } else {
+                        Token::Slash
+                    }
+                } else {
+                    Token::Slash
+                }
+            }
             '!' => {
                 if let Some(&next_char) = chars.peek() {
                     if next_char == '=' {
                         chars.next();
-                        tokens.push(Token::BangEqual);
+                        Token::BangEqual
                     } else {
-                        tokens.push(Token::Bang);
+                        Token::Bang
                     }
                 } else {
-                    tokens.push(Token::Bang);
+                    Token::Bang
                 }
             }
             '<' => {
                 if let Some(&next_char) = chars.peek() {
                     if next_char == '=' {
                         chars.next();
-                        tokens.push(Token::LessEqual);
+                        Token::LessEqual
                     } else {
-                        tokens.push(Token::Less);
+                        Token::Less
                     }
                 } else {
-                    tokens.push(Token::Less);
+                    Token::Less
                 }
             }
             '>' => {
                 if let Some(&next_char) = chars.peek() {
                     if next_char == '=' {
                         chars.next();
-                        tokens.push(Token::GreaterEqual);
+                        Token::GreaterEqual
                     } else {
-                        tokens.push(Token::Greater);
+                        Token::Greater
                     }
                 } else {
-                    tokens.push(Token::Greater);
+                    Token::Greater
                 }
             }
             '0'..='9' => {
                 let number = tokenize_number(c, &mut chars);
-                tokens.push(number);
+                number
             }
             '"' => {
                 let string = tokenize_string(&mut chars);
-                tokens.push(string);
+                string
             }
             'a'..='z' | 'A'..='Z' => {
                 let identifier = tokenize_identifier(c, &mut chars);
-                tokens.push(identifier);
+                identifier
             }
-            '\n' => line += 1,
-            _ => {
-                tokens.push(Token::Invalid(TokenizerError {
-                    line,
-                    message: format!("Unexpected character: {}", c),
-                }));
+            '\n' => {
+                line += 1;
+                pushing = true;
+                Token::WhiteSpace
             }
+            _ => Token::Invalid(TokenizerError {
+                line,
+                message: format!("Unexpected character: {}", c),
+            }),
+        };
+
+        if pushing {
+            tokens.push(token);
         }
     }
 

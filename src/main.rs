@@ -30,6 +30,7 @@ fn main() -> ExitCode {
                         writeln!(io::stderr(), "[line {}] Error: {}", e.line, e.message).unwrap();
                         return_code = 65;
                     }
+                    tokenizer::Token::WhiteSpace => {}
                     _ => println!("{}", token),
                 }
             }
