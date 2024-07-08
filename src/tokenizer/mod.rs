@@ -177,7 +177,7 @@ pub fn tokenize(input: &str) -> Vec<Token> {
                 let string = tokenize_string(&mut chars);
                 string
             }
-            'a'..='z' | 'A'..='Z' => {
+            'a'..='z' | 'A'..='Z' | '_' => {
                 let identifier = tokenize_identifier(c, &mut chars);
                 identifier
             }
@@ -250,7 +250,7 @@ fn tokenize_identifier(first_char: char, chars: &mut PeekMoreIterator<Chars>) ->
     let mut identifier = String::new();
     identifier.push(first_char);
     while let Some(&c) = chars.peek() {
-        if c.is_alphanumeric() {
+        if c.is_alphanumeric() || c == '_' {
             identifier.push(c);
             chars.next();
         } else {
