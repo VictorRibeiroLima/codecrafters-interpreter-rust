@@ -1,4 +1,5 @@
-use std::{fmt::Display, iter::Peekable, str::Chars};
+use peekmore::{PeekMore, PeekMoreIterator};
+use std::{fmt::Display, str::Chars};
 
 struct Keyword_ {
     name: &'static str,
@@ -73,7 +74,13 @@ impl Display for Token {
             Token::GreaterEqual => write!(f, "GREATER_EQUAL >= null"),
             Token::Identifier(s) => write!(f, "IDENTIFIER {} null", s),
             Token::String(s) => write!(f, "STRING \"{}\" {}", s, s),
-            Token::Number(s) => write!(f, "NUMBER {} {:?}", s, s.parse::<f64>().unwrap()),
+            Token::Number(s) => {
+                let f64_str = match s.parse::<f64>() {
+                    Ok(f) => format!("{:?}", f),
+                    Err(_) => s.clone(),
+                };
+                write!(f, "NUMBER {} {}", s, f64_str)
+            }
             Token::Invalid(s) => write!(f, "[line {}] Error: {}", s.line, s.message),
         }
     }
@@ -81,7 +88,7 @@ impl Display for Token {
 
 pub fn tokenize(input: &str) -> Vec<Token> {
     let mut tokens = Vec::new();
-    let mut chars = input.chars().peekable();
+    let mut chars = input.chars().peekmore();
     let mut line = 1;
 
     while let Some(c) = chars.next() {
@@ -191,7 +198,7 @@ pub fn tokenize(input: &str) -> Vec<Token> {
     tokens
 }
 
-fn tokenize_number(first_char: char, chars: &mut Peekable<Chars>) -> Token {
+fn tokenize_number(first_char: char, chars: &mut PeekMoreIterator<Chars>) -> Token {
     let mut number = String::new();
     let mut decimal = false;
     number.push(first_char);
@@ -203,6 +210,10 @@ fn tokenize_number(first_char: char, chars: &mut Peekable<Chars>) -> Token {
             if decimal {
                 break;
             }
+            let next_2c = chars.peek_nth(2);
+            if next_2c.is_none() || !next_2c.unwrap().is_digit(10) {
+                break;
+            }
             decimal = true;
             number.push(c);
             chars.next();
@@ -211,12 +222,12 @@ fn tokenize_number(first_char: char, chars: &mut Peekable<Chars>) -> Token {
         }
     }
     if &number[number.len() - 1..] == "." {
-        number.pop();
+        number.push('0');
     }
     Token::Number(number)
 }
 
-fn tokenize_string(chars: &mut Peekable<Chars>) -> Token {
+fn tokenize_string(chars: &mut PeekMoreIterator<Chars>) -> Token {
     let mut string = String::new();
     let mut last_char = '"';
     while let Some(c) = chars.next() {
@@ -235,7 +246,7 @@ fn tokenize_string(chars: &mut Peekable<Chars>) -> Token {
     Token::String(string)
 }
 
-fn tokenize_identifier(first_char: char, chars: &mut Peekable<Chars>) -> Token {
+fn tokenize_identifier(first_char: char, chars: &mut PeekMoreIterator<Chars>) -> Token {
     let mut identifier = String::new();
     identifier.push(first_char);
     while let Some(&c) = chars.peek() {
