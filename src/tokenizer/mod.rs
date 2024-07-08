@@ -22,6 +22,12 @@ pub enum Token {
     RightParen,
     LeftBrace,
     RightBrace,
+    Star,
+    Dot,
+    Comma,
+    Plus,
+    Minus,
+    Slash,
     Invalid(String),
     EOF,
 }
@@ -39,6 +45,12 @@ impl Display for Token {
             Token::RightParen => write!(f, "RIGHT_PAREN ) null"),
             Token::LeftBrace => write!(f, "LEFT_BRACE {{ null"),
             Token::RightBrace => write!(f, "RIGHT_BRACE }} null"),
+            Token::Star => write!(f, "STAR * null"),
+            Token::Dot => write!(f, "DOT . null"),
+            Token::Comma => write!(f, "COMMA , null"),
+            Token::Plus => write!(f, "PLUS + null"),
+            Token::Minus => write!(f, "MINUS - null"),
+            Token::Slash => write!(f, "SLASH / null"),
             Token::EOF => write!(f, "EOF  null"),
             Token::Invalid(s) => write!(f, "INVALID {} null", s),
         }
@@ -58,6 +70,12 @@ pub fn tokenize(input: &str) -> Vec<Token> {
             ')' => tokens.push(Token::RightParen),
             '{' => tokens.push(Token::LeftBrace),
             '}' => tokens.push(Token::RightBrace),
+            '*' => tokens.push(Token::Star),
+            '.' => tokens.push(Token::Dot),
+            ',' => tokens.push(Token::Comma),
+            '+' => tokens.push(Token::Plus),
+            '-' => tokens.push(Token::Minus),
+            '/' => tokens.push(Token::Slash),
             '0'..='9' => {
                 let number = tokenize_number(c, &mut chars);
                 tokens.push(number);
